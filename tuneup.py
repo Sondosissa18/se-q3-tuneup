@@ -5,11 +5,14 @@
 Use the timeit and cProfile libraries to find bad code.
 """
 
-__author__ = "???"
-
-import cProfile
-import pstats
+import timeit
 import functools
+import pstats
+import cProfile
+
+
+__author__ = "sondos got help from Joseph , gabby, and Daniel"
+__refrences__ = "https://docs.python.org/2/library/profile.html"
 
 
 def profile(func):
@@ -18,7 +21,21 @@ def profile(func):
     """
     # Be sure to review the lesson material on decorators.
     # You need to understand how they are constructed and used.
-    raise NotImplementedError("Complete this decorator function")
+    # raise NotImplementedError("Complete this decorator function")
+
+    def wrapper(*args, **kwargs):
+
+        pr = cProfile.Profile()
+        pr.enable()
+        result = func(*args, **kwargs)
+        pr.disable()
+        sort_by = 'cumulative'
+        ps = pstats.Stats(pr).sort_stats(sort_by)
+
+        ps.print_stats()
+
+        return result
+    return wrapper
 
 
 def read_movies(src):
@@ -30,12 +47,12 @@ def read_movies(src):
 
 def is_duplicate(title, movies):
     """Returns True if title is within movies list."""
-    for movie in movies:
-        if movie.lower() == title.lower():
-            return True
+    if title in movies:
+        return True
     return False
 
 
+@profile
 def find_duplicate_movies(src):
     """Returns a list of duplicate movies from a src list."""
     movies = read_movies(src)
@@ -47,10 +64,20 @@ def find_duplicate_movies(src):
     return duplicates
 
 
+# find_duplicate_movies()
+
+
 def timeit_helper():
     """Part A: Obtain some profiling measurements using timeit."""
-    # YOUR CODE GOES HERE
-    pass
+    nums_repeat = 5
+    nums_per_repeat = 3
+
+    t = timeit.Timer(stmt="print(type(d))", setup="d = []")
+    result = t.repeat(repeat=nums_repeat, number=nums_per_repeat)
+    time_cost = min(result) / nums_per_repeat
+    print(
+        f"Best time across {nums_repeat} repeats of {nums_per_repeat} runs per repeat:{time_cost}")
+    # return time_cost
 
 
 def main():
@@ -62,3 +89,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    timeit_helper()
